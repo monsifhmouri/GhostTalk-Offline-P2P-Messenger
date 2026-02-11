@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostTalk - تطبيق المراسلة الآمنة العسكري</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0a0f1e;
+            --secondary: #131a2c;
+            --accent: #6c63ff;
+            --accent-light: #8a84ff;
+            --accent-dark: #4a44cc;
+            --text: #f0f4ff;
+            --text-secondary: #a0a8cc;
+            --danger: #ff6b8b;
+            --success: #4dccbd;
+            --glow: rgba(108, 99, 255, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            direction: rtl;
+            overflow-x: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        body[dir="ltr"] {
+            direction: ltr;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Floating particles for background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--accent);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(20px); }
+            50% { transform: translateY(0) translateX(40px); }
+            75% { transform: translateY(20px) translateX(20px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+        
+        /* Cursor effects */
+        .cursor-effect {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            mix-blend-mode: screen;
+        }
+        
+        .cursor-trail {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Language Switcher */
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: flex;
+            gap: 10px;
+            background: rgba(19, 26, 44, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 8px 15px;
+            border: 1px solid rgba(108, 99, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .lang-btn:hover {
+            color: var(--text);
+            background: rgba(108, 99, 255, 0.1);
+        }
+        
+        .lang-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 15px var(--glow);
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: rgba(19, 26, 44, 0.95);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .header-scrolled {
+            padding: 15px 0;
+            background-color: rgba(10, 15, 30, 0.98);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            color: var(--accent);
+            font-size: 2.2rem;
+            filter: drop-shadow(0 0 10px var(--glow));
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { filter: drop-shadow(0 0 5px var(--glow)); }
+            50% { filter: drop-shadow(0 0 15px var(--glow)); }
+            100% { filter: drop-shadow(0 0 5px var(--glow)); }
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(to right, var(--accent), #a29bfe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(108, 99, 255, 0.2);
+        }
+        
+        .tagline {
+            color: var(--accent-light);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .contact-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .contact-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(108, 99, 255, 0.1);
+        }
+        
+        .contact-links a:hover {
+            color: var(--accent);
+            background: rgba(108, 99, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--glow);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 120px 0 100px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(108, 99, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(77, 204, 189, 0.05) 0%, transparent 50%);
+            z-index: 0;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--accent), #a29bfe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.8;
+        }
+        
+        .highlight {
+            color: var(--accent);
+            font-weight: bold;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+            transform-origin: right;
+        }
+        
+        .highlight:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            padding: 18px 45px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            transition: all 0.4s;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
+            z-index: 1;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-dark) 0%, var(--accent) 100%);
+            z-index: -1;
+            transition: opacity 0.4s;
+            opacity: 0;
+            border-radius: 50px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(108, 99, 255, 0.4);
+        }
+        
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+        
+        .cta-button:active {
+            transform: translateY(-2px);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.2rem;
+            color: var(--accent);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(145deg, rgba(19, 26, 44, 0.9), rgba(10, 15, 30, 0.9));
+            padding: 35px;
+            border-radius: 15px;
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), transparent);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(108, 99, 255, 0.2);
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(108, 99, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--text);
+            font-size: 1.4rem;
+        }
+        
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        
+        /* Screenshots Section */
+        .screenshots {
+            padding: 100px 0;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            position: relative;
+        }
+        
+        .screenshots::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 0%, rgba(108, 99, 255, 0.05) 0%, transparent 50%);
+        }
+        
+        .screenshots-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 25px;
+            padding: 30px 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--secondary);
+        }
+        
+        .screenshots-container::-webkit-scrollbar {
+            height: 10px;
+        }
+        
+        .screenshots-container::-webkit-scrollbar-track {
+            background: rgba(19, 26, 44, 0.5);
+            border-radius: 10px;
+        }
+        
+        .screenshots-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(to right, var(--accent), var(--accent-dark));
+            border-radius: 10px;
+        }
+        
+        .screenshot {
+            flex: 0 0 auto;
+            width: 280px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s;
+            position: relative;
+            border: 1px solid rgba(108, 99, 255, 0.2);
+        }
+        
+        .screenshot:hover {
+            transform: scale(1.08) rotateY(5deg);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(108, 99, 255, 0.3);
+        }
+        
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s;
+        }
+        
+        .screenshot:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Tech Details */
+        .tech-details {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .tech-card {
+            background: linear-gradient(145deg, rgba(19, 26, 44, 0.9), rgba(10, 15, 30, 0.9));
+            padding: 35px;
+            border-radius: 15px;
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(108, 99, 255, 0.1);
+        }
+        
+        .tech-card h3 {
+            color: var(--accent);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .tech-list {
+            list-style-type: none;
+        }
+        
+        .tech-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(160, 168, 204, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+        
+        .tech-list li:hover {
+            padding-right: 10px;
+            color: var(--accent-light);
+        }
+        
+        .tech-list li i {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        
+        /* Sale Info */
+        .sale-info {
+            padding: 100px 0;
+            background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sale-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 100%, rgba(108, 99, 255, 0.1) 0%, transparent 70%);
+        }
+        
+        .price {
+            font-size: 3.5rem;
+            color: var(--accent);
+            margin: 30px 0;
+            font-weight: 800;
+            text-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+            animation: priceGlow 3s infinite alternate;
+        }
+        
+        @keyframes priceGlow {
+            0% { text-shadow: 0 5px 15px rgba(108, 99, 255, 0.3); }
+            100% { text-shadow: 0 5px 25px rgba(108, 99, 255, 0.6), 0 0 40px rgba(108, 99, 255, 0.3); }
+        }
+        
+        .disclaimer {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(19, 26, 44, 0.5);
+            border: 1px solid rgba(108, 99, 255, 0.1);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            padding: 60px 0 30px;
+            text-align: center;
+            border-top: 1px solid rgba(108, 99, 255, 0.2);
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .footer-links a {
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: rgba(108, 99, 255, 0.1);
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+            background: rgba(108, 99, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            color: var(--text-secondary);
+            margin-top: 30px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h2 {
+                font-size: 2.3rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .language-switcher {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .hero {
+                padding: 100px 0 80px;
+            }
+            
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.7rem;
+            }
+            
+            .features-grid, .tech-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .price {
+                font-size: 2.5rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .feature-card, .tech-card {
+                padding: 25px;
+            }
+            
+            .cta-button {
+                padding: 15px 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div class="particles" id="particles-container"></div>
+    
+    <!-- Cursor effects -->
+    <div class="cursor-effect" id="cursor-effect"></div>
+    
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+        <button class="lang-btn active" data-lang="ar">العربية</button>
+        <button class="lang-btn" data-lang="en">English</button>
+        <button class="lang-btn" data-lang="fr">Français</button>
+    </div>
+
+    <!-- Header -->
+    <header id="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-ghost"></i>
+                    <div>
+                        <h1 class="translatable" data-ar="GhostTalk" data-en="GhostTalk" data-fr="GhostTalk">GhostTalk</h1>
+                        <div class="tagline translatable" data-ar="مراسلة عسكرية آمنة 100% بدون إنترنت" data-en="100% Secure Military Messaging Without Internet" data-fr="Messagerie militaire sécurisée 100% sans internet">مراسلة عسكرية آمنة 100% بدون إنترنت</div>
+                    </div>
+                </div>
+                <div class="contact-links">
+                    <a href="http://t.me/monstr_m1nd" target="_blank" title="التواصل عبر Telegram" class="translatable-title" data-ar="التواصل عبر Telegram" data-en="Contact via Telegram" data-fr="Contact via Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="https://www.instagram.com/httpx.mrmonsif" target="_blank" title="التواصل عبر Instagram" class="translatable-title" data-ar="التواصل عبر Instagram" data-en="Contact via Instagram" data-fr="Contact via Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="translatable" data-ar="GhostTalk - تطبيق المراسلة العسكري الآمن" data-en="GhostTalk - Secure Military Messaging App" data-fr="GhostTalk - Application de messagerie militaire sécurisée">GhostTalk - تطبيق المراسلة العسكري الآمن</h2>
+                <p class="translatable" data-ar="أبحث عن إطلاق تطبيق Android فريد؟ أنا أبيع كود المصدر الكامل لـ GhostTalk، تطبيق مراسلة من طراز عسكري، يعمل بنظام الند للند (P2P) ويعمل بالكامل دون اتصال بالإنترنت." data-en="Looking to launch a unique Android app? I'm selling the complete source code for GhostTalk, a military-grade messaging app that works peer-to-peer (P2P) and operates completely without internet connection." data-fr="Cherchez-vous à lancer une application Android unique ? Je vends le code source complet de GhostTalk, une application de messagerie de qualité militaire qui fonctionne en pair-à-pair (P2P) et opère complètement sans connexion internet.">أبحث عن إطلاق تطبيق Android فريد؟ أنا أبيع كود المصدر الكامل لـ <span class="highlight translatable-word" data-ar="GhostTalk" data-en="GhostTalk" data-fr="GhostTalk">GhostTalk</span>، تطبيق مراسلة من طراز عسكري، يعمل بنظام الند للند (P2P) ويعمل بالكامل دون اتصال بالإنترنت.</p>
+                <p class="translatable" data-ar="يعمل بدون أي اتصال بالإنترنت باستخدام Bluetooth و Wi-Fi Direct." data-en="Works without any internet connection using Bluetooth and Wi-Fi Direct." data-fr="Fonctionne sans aucune connexion internet en utilisant Bluetooth et Wi-Fi Direct.">يعمل بدون أي اتصال بالإنترنت باستخدام <span class="highlight translatable-word" data-ar="Bluetooth" data-en="Bluetooth" data-fr="Bluetooth">Bluetooth</span> و <span class="highlight translatable-word" data-ar="Wi-Fi Direct" data-en="Wi-Fi Direct" data-fr="Wi-Fi Direct">Wi-Fi Direct</span>.</p>
+                <a href="#contact" class="cta-button translatable" data-ar="تواصل معي للشراء" data-en="Contact Me to Purchase" data-fr="Contactez-moi pour acheter">تواصل معي للشراء</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title translatable" data-ar="مميزات التطبيق" data-en="App Features" data-fr="Fonctionnalités de l'application">مميزات التطبيق</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="translatable" data-ar="أمان عسكري متقدم" data-en="Advanced Military Security" data-fr="Sécurité militaire avancée">أمان عسكري متقدم</h3>
+                    <p class="translatable" data-ar="تشفير AES-256 مع إدارة مفاتيح آمنة. تصميم عسكري يوفر خصوصية كاملة للمحادثات دون الحاجة لخوادم وسيطة." data-en="AES-256 encryption with secure key management. Military-grade design provides complete privacy for conversations without intermediary servers." data-fr="Chiffrement AES-256 avec gestion sécurisée des clés. Conception de qualité militaire offrant une confidentialité totale des conversations sans serveurs intermédiaires.">تشفير AES-256 مع إدارة مفاتيح آمنة. تصميم عسكري يوفر خصوصية كاملة للمحادثات دون الحاجة لخوادم وسيطة.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-wifi-slash"></i>
+                    </div>
+                    <h3 class="translatable" data-ar="عمل كامل بدون إنترنت" data-en="Full Operation Without Internet" data-fr="Fonctionnement complet sans internet">عمل كامل بدون إنترنت</h3>
+                    <p class="translatable" data-ar="يعمل بنظام P2P باستخدام Bluetooth وWi-Fi Direct. لا حاجة لأي اتصال بالإنترنت أو خوادم مركزية." data-en="Works on P2P system using Bluetooth and Wi-Fi Direct. No need for any internet connection or central servers." data-fr="Fonctionne sur système P2P utilisant Bluetooth et Wi-Fi Direct. Pas besoin de connexion internet ou de serveurs centraux.">يعمل بنظام P2P باستخدام Bluetooth وWi-Fi Direct. لا حاجة لأي اتصال بالإنترنت أو خوادم مركزية.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="translatable" data-ar="كود مصدر كامل وجاهز" data-en="Complete Ready Source Code" data-fr="Code source complet et prêt">كود مصدر كامل وجاهز</h3>
+                    <p class="translatable" data-ar="مكتوب بـ Kotlin Native 100%. يحتوي على 14 ملف Kotlin + 7 تخطيطات XML مخصصة. مثالي للمشاريع التجارية أو مفتوحة المصدر." data-en="Written in 100% Kotlin Native. Contains 14 Kotlin files + 7 custom XML layouts. Ideal for commercial or open-source projects." data-fr="Écrit en 100% Kotlin Native. Contient 14 fichiers Kotlin + 7 mises en page XML personnalisées. Idéal pour projets commerciaux ou open-source.">مكتوب بـ Kotlin Native 100%. يحتوي على 14 ملف Kotlin + 7 تخطيطات XML مخصصة. مثالي للمشاريع التجارية أو مفتوحة المصدر.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="translatable" data-ar="شبكة Mesh Networking" data-en="Mesh Networking" data-fr="Réseau maillé">شبكة Mesh Networking</h3>
+                    <p class="translatable" data-ar="دعم اتصالات mesh networking للتواصل بين عدة أجهزة في آن واحد. مثالي للعمل الجماعي في المناطق النائية." data-en="Supports mesh networking connections for communication between multiple devices simultaneously. Ideal for team work in remote areas." data-fr="Prend en charge les connexions de réseau maillé pour la communication entre plusieurs appareils simultanément. Idéal pour le travail d'équipe dans les zones reculées.">دعم اتصالات mesh networking للتواصل بين عدة أجهزة في آن واحد. مثالي للعمل الجماعي في المناطق النائية.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="translatable" data-ar="واجهة مستخدم فريدة" data-en="Unique User Interface" data-fr="Interface utilisateur unique">واجهة مستخدم فريدة</h3>
+                    <p class="translatable" data-ar="تصميم سايبر-ثيم احترافي مع واجهة مستخدم سهلة الاستخدام. دعم كامل للوضع المظلم وتجربة مستخدم متميزة." data-en="Professional cyber-themed design with easy-to-use interface. Full dark mode support and premium user experience." data-fr="Design professionnel à thème cyber avec interface facile à utiliser. Support complet du mode sombre et expérience utilisateur premium.">تصميم سايبر-ثيم احترافي مع واجهة مستخدم سهلة الاستخدام. دعم كامل للوضع المظلم وتجربة مستخدم متميزة.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sos"></i>
+                    </div>
+                    <h3 class="translatable" data-ar="إشارات الطوارئ SOS" data-en="SOS Emergency Signals" data-fr="Signaux d'urgence SOS">إشارات الطوارئ SOS</h3>
+                    <p class="translatable" data-ar="ميزة إرسال إشارات طوارئ مشفرة في الحالات الحرجة. مثالي للبعثات العسكرية أو الاستكشافية." data-en="Feature to send encrypted emergency signals in critical situations. Ideal for military or exploratory missions." data-fr="Fonction d'envoi de signaux d'urgence chiffrés dans des situations critiques. Idéal pour missions militaires ou d'exploration.">ميزة إرسال إشارات طوارئ مشفرة في الحالات الحرجة. مثالي للبعثات العسكرية أو الاستكشافية.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section class="screenshots">
+        <div class="container">
+            <h2 class="section-title translatable" data-ar="لقطات من التطبيق" data-en="App Screenshots" data-fr="Captures d'écran de l'application">لقطات من التطبيق</h2>
+            <div class="screenshots-container">
+                <div class="screenshot">
+                    <img src="App_interface.jpg" alt="واجهة التطبيق الرئيسية - GhostTalk" class="translatable-alt" data-ar="واجهة التطبيق الرئيسية - GhostTalk" data-en="Main App Interface - GhostTalk" data-fr="Interface principale de l'application - GhostTalk">
+                </div>
+                <div class="screenshot">
+                    <img src="App_interface2.jpg" alt="واجهة التطبيق - تفحص الأجهزة" class="translatable-alt" data-ar="واجهة التطبيق - تفحص الأجهزة" data-en="App Interface - Device Scanning" data-fr="Interface de l'application - Scan des appareils">
+                </div>
+                <div class="screenshot">
+                    <img src="App_interface3.jpg" alt="واجهة التطبيق - الأجهزة القريبة" class="translatable-alt" data-ar="واجهة التطبيق - الأجهزة القريبة" data-en="App Interface - Nearby Devices" data-fr="Interface de l'application - Appareils à proximité">
+                </div>
+                <div class="screenshot">
+                    <img src="Encryption_interface.jpg" alt="واجهة التشفير - Ghost Center" class="translatable-alt" data-ar="واجهة التشفير - Ghost Center" data-en="Encryption Interface - Ghost Center" data-fr="Interface de chiffrement - Ghost Center">
+                </div>
+                <div class="screenshot">
+                    <img src="Message_interface.jpg" alt="واجهة المراسلة الآمنة" class="translatable-alt" data-ar="واجهة المراسلة الآمنة" data-en="Secure Messaging Interface" data-fr="Interface de messagerie sécurisée">
+                </div>
+                <div class="screenshot">
+                    <img src="source_code.png" alt="هيكل كود المصدر" class="translatable-alt" data-ar="هيكل كود المصدر" data-en="Source Code Structure" data-fr="Structure du code source">
+                </div>
+                <div class="screenshot">
+                    <img src="Files.png" alt="ملفات المشروع" class="translatable-alt" data-ar="ملفات المشروع" data-en="Project Files" data-fr="Fichiers du projet">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Details -->
+    <section class="tech-details">
+        <div class="container">
+            <h2 class="section-title translatable" data-ar="التفاصيل التقنية" data-en="Technical Details" data-fr="Détails techniques">التفاصيل التقنية</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h3><i class="fas fa-laptop-code"></i> <span class="translatable" data-ar="التقنيات المستخدمة" data-en="Technologies Used" data-fr="Technologies utilisées">التقنيات المستخدمة</span></h3>
+                    <ul class="tech-list">
+                        <li><i class="fas fa-check"></i> <span class="translatable" data-ar="100% Kotlin Native" data-en="100% Kotlin Native" data-fr="100% Kotlin Native">100% Kotlin Native</span></li>
+                        <li><i class="fas fa-check"></i> <span class="translatable" data-ar="Android SDK كامل" data-en="Full Android SDK" data-fr="SDK Android complet">Android SDK كامل</span></li>
+                        <li><i class="fas fa-check"></i> <span class="translatable" data-ar="Bluetooth API" data-en="Bluetooth API" data-fr="API Bluetooth">Bluetooth API</span></li>
+                        <li><i class="fas fa-check"></i> <span class="translatable" data-ar="Wi-Fi Direct API" data-en="Wi-Fi Direct API" data-fr="API Wi-Fi Direct">Wi-Fi Direct API</span></li>
+                        <li><i class="fas fa-check"></i> <span class="translatable" data-ar="AES-256 Encryption" data-en="AES-256 Encryption" data-fr="Chiffrement AES-256">AES-256 Encryption</span></li>
+                        <li><i class="fas fa-check"></i> <span class="translatable" data-ar="Custom Security Protocols" data-en="Custom Security Protocols" data-fr="Protocoles de sécurité personnalisés">Custom Security Protocols</span></li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-folder-open"></i> <span class="translatable" data-ar="هيكل المشروع" data-en="Project Structure" data-fr="Structure du projet">هيكل المشروع</span></h3>
+                    <ul class="tech-list">
+                        <li><i class="fas fa-file-code"></i> <span class="translatable" data-ar="14 ملف Kotlin" data-en="14 Kotlin Files" data-fr="14 fichiers Kotlin">14 ملف Kotlin</span></li>
+                        <li><i class="fas fa-file-code"></i> <span class="translatable" data-ar="7 تخطيطات XML مخصصة" data-en="7 Custom XML Layouts" data-fr="7 mises en page XML personnalisées">7 تخطيطات XML مخصصة</span></li>
+                        <li><i class="fas fa-folder"></i> <span class="translatable" data-ar="هيكل مشروع Android كامل" data-en="Complete Android Project Structure" data-fr="Structure complète du projet Android">هيكل مشروع Android كامل</span></li>
+                        <li><i class="fas fa-folder"></i> <span class="translatable" data-ar="دعم الترجمة والتخصيص" data-en="Translation and Customization Support" data-fr="Support de traduction et personnalisation">دعم الترجمة والتخصيص</span></li>
+                        <li><i class="fas fa-key"></i> <span class="translatable" data-ar="إدارة مفاتيح التشفير" data-en="Encryption Key Management" data-fr="Gestion des clés de chiffrement">إدارة مفاتيح التشفير</span></li>
+                        <li><i class="fas fa-mobile-alt"></i> <span class="translatable" data-ar="واجهات مستخدم متعددة" data-en="Multiple User Interfaces" data-fr="Interfaces utilisateur multiples">واجهات مستخدم متعددة</span></li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h3><i class="fas fa-users"></i> <span class="translatable" data-ar="الاستخدامات المقترحة" data-en="Suggested Uses" data-fr="Utilisations suggérées">الاستخدامات المقترحة</span></h3>
+                    <ul class="tech-list">
+                        <li><i class="fas fa-user-shield"></i> <span class="translatable" data-ar="تطبيقات الخصوصية" data-en="Privacy Applications" data-fr="Applications de confidentialité">تطبيقات الخصوصية</span></li>
+                        <li><i class="fas fa-comment-slash"></i> <span class="translatable" data-ar="المراسلة بدون إنترنت" data-en="Offline Messaging" data-fr="Messagerie hors ligne">المراسلة بدون إنترنت</span></li>
+                        <li><i class="fas fa-project-diagram"></i> <span class="translatable" data-ar="قاعدة لمشروع أكبر" data-en="Base for Larger Project" data-fr="Base pour projet plus large">قاعدة لمشروع أكبر</span></li>
+                        <li><i class="fas fa-graduation-cap"></i> <span class="translatable" data-ar="مشروع تعليمي متقدم" data-en="Advanced Educational Project" data-fr="Projet éducatif avancé">مشروع تعليمي متقدم</span></li>
+                        <li><i class="fas fa-business-time"></i> <span class="translatable" data-ar="تطوير تجاري" data-en="Commercial Development" data-fr="Développement commercial">تطوير تجاري</span></li>
+                        <li><i class="fas fa-code-branch"></i> <span class="translatable" data-ar="مشروع مفتوح المصدر" data-en="Open Source Project" data-fr="Projet open source">مشروع مفتوح المصدر</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sale Information -->
+    <section class="sale-info" id="contact">
+        <div class="container">
+            <h2 class="section-title translatable" data-ar="معلومات الشراء" data-en="Purchase Information" data-fr="Informations d'achat">معلومات الشراء</h2>
+            <p class="translatable" data-ar="كود المصدر الكامل للتطبيق مع جميع الملفات والموارد جاهز للبيع." data-en="The complete source code of the application with all files and resources is ready for sale." data-fr="Le code source complet de l'application avec tous les fichiers et ressources est prêt à la vente.">كود المصدر الكامل للتطبيق مع جميع الملفات والموارد جاهز للبيع.</p>
+            <div class="price translatable" data-ar="السعر: حسب التفاوض" data-en="Price: Negotiable" data-fr="Prix : Négociable">السعر: حسب التفاوض</div>
+            <p class="translatable" data-ar="يشمل الكود المصدر الكامل، جميع الأصول، التصاميم، وتراخيص الاستخدام التجاري." data-en="Includes complete source code, all assets, designs, and commercial use licenses." data-fr="Inclut le code source complet, tous les actifs, les designs et les licences d'utilisation commerciale.">يشمل الكود المصدر الكامل، جميع الأصول، التصاميم، وتراخيص الاستخدام التجاري.</p>
+            <a href="http://t.me/monstr_m1nd" target="_blank" class="cta-button">
+                <i class="fab fa-telegram"></i> <span class="translatable" data-ar="تواصل عبر Telegram للتفاوض" data-en="Contact via Telegram to Negotiate" data-fr="Contactez via Telegram pour négocier">تواصل عبر Telegram للتفاوض</span>
+            </a>
+            <p class="disclaimer translatable" data-ar="ملاحظة: للاستفسارات الجادة فقط. الكود جاهز للتسليم فوراً بعد إتمام عملية الدفع. يشمل الدعم الفني لمدة محددة بعد الشراء للإجابة على الاستفسارات التقنية." data-en="Note: For serious inquiries only. The code is ready for immediate delivery after payment completion. Includes technical support for a limited period after purchase to answer technical inquiries." data-fr="Remarque : Pour demandes sérieuses uniquement. Le code est prêt pour une livraison immédiate après le paiement. Inclut un support technique pour une période limitée après l'achat pour répondre aux questions techniques.">ملاحظة: للاستفسارات الجادة فقط. الكود جاهز للتسليم فوراً بعد إتمام عملية الدفع. يشمل الدعم الفني لمدة محددة بعد الشراء للإجابة على الاستفسارات التقنية.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-ghost"></i>
+                <div>
+                    <h1 class="translatable" data-ar="GhostTalk" data-en="GhostTalk" data-fr="GhostTalk">GhostTalk</h1>
+                    <div class="tagline translatable" data-ar="Open-source ready Android P2P Offline Messenger" data-en="Open-source ready Android P2P Offline Messenger" data-fr="Open-source ready Android P2P Offline Messenger">Open-source ready Android P2P Offline Messenger</div>
+                </div>
+            </div>
+            <div class="footer-links">
+                <a href="http://t.me/monstr_m1nd" target="_blank">
+                    <i class="fab fa-telegram"></i> <span class="translatable" data-ar="Telegram" data-en="Telegram" data-fr="Telegram">Telegram</span>
+                </a>
+                <a href="https://www.instagram.com/httpx.mrmonsif" target="_blank">
+                    <i class="fab fa-instagram"></i> <span class="translatable" data-ar="Instagram" data-en="Instagram" data-fr="Instagram">Instagram</span>
+                </a>
+            </div>
+            <div class="copyright translatable" data-ar="© 2026 GhostTalk Project. جميع الحقوق محفوظة.<br>Bluetooth & Wi-Fi Direct & mesh networking – Full Project" data-en="© 2026 GhostTalk Project. All rights reserved.<br>Bluetooth & Wi-Fi Direct & mesh networking – Full Project" data-fr="© 2026 GhostTalk Project. Tous droits réservés.<br>Bluetooth & Wi-Fi Direct & réseau maillé – Projet complet">© 2026 GhostTalk Project. جميع الحقوق محفوظة.<br>Bluetooth & Wi-Fi Direct & mesh networking – Full Project</div>
+        </div>
+    </footer>
+
+    <script>
+        // Current language
+        let currentLang = 'ar';
+        
+        // Language data
+        const translations = {
+            ar: {
+                dir: 'rtl',
+                lang: 'ar'
+            },
+            en: {
+                dir: 'ltr',
+                lang: 'en'
+            },
+            fr: {
+                dir: 'ltr',
+                lang: 'fr'
+            }
+        };
+        
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles-container');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size and position
+                const size = Math.random() * 6 + 2;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 20;
+                const duration = Math.random() * 10 + 15;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Random color variation
+                const hue = 250 + Math.random() * 30;
+                particle.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Mouse cursor effects
+        const cursorEffect = document.getElementById('cursor-effect');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+        let trailArray = [];
+        
+        // Update cursor position
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursorEffect.style.opacity = '1';
+            
+            // Create trail particles
+            if (Math.random() > 0.7) {
+                createTrailParticle(e.clientX, e.clientY);
+            }
+        });
+        
+        // Hide cursor when leaving window
+        document.addEventListener('mouseleave', () => {
+            cursorEffect.style.opacity = '0';
+        });
+        
+        // Animate cursor
+        function animateCursor() {
+            // Smooth cursor movement
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            
+            cursorEffect.style.left = `${cursorX - 10}px`;
+            cursorEffect.style.top = `${cursorY - 10}px`;
+            
+            // Update trail particles
+            updateTrailParticles();
+            
+            requestAnimationFrame(animateCursor);
+        }
+        
+        // Create trail particles
+        function createTrailParticle(x, y) {
+            const trail = document.createElement('div');
+            trail.classList.add('cursor-trail');
+            trail.style.left = `${x - 4}px`;
+            trail.style.top = `${y - 4}px`;
+            trail.style.opacity = '0.7';
+            
+            // Random color variation
+            const hue = 250 + Math.random() * 30;
+            trail.style.backgroundColor = `hsl(${hue}, 100%, 70%)`;
+            
+            document.body.appendChild(trail);
+            trailArray.push({
+                element: trail,
+                x: x,
+                y: y,
+                size: Math.random() * 3 + 2,
+                life: 20
+            });
+        }
+        
+        // Update trail particles
+        function updateTrailParticles() {
+            for (let i = trailArray.length - 1; i >= 0; i--) {
+                const particle = trailArray[i];
+                particle.life--;
+                particle.element.style.opacity = particle.life / 20;
+                particle.element.style.transform = `scale(${particle.life / 20})`;
+                
+                if (particle.life <= 0) {
+                    particle.element.remove();
+                    trailArray.splice(i, 1);
+                }
+            }
+        }
+        
+        // Language switcher
+        const langButtons = document.querySelectorAll('.lang-btn');
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const newLang = button.getAttribute('data-lang');
+                if (newLang !== currentLang) {
+                    changeLanguage(newLang);
+                }
+            });
+        });
+        
+        // Change language function
+        function changeLanguage(lang) {
+            currentLang = lang;
+            
+            // Update body direction and lang attribute
+            document.body.dir = translations[lang].dir;
+            document.documentElement.lang = translations[lang].lang;
+            
+            // Update active button
+            langButtons.forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Update all translatable elements
+            updateTextContent(lang);
+            
+            // Show notification
+            showLanguageNotification(lang);
+            
+            // Save preference to localStorage
+            localStorage.setItem('ghosttalk-language', lang);
+        }
+        
+        // Update text content based on language
+        function updateTextContent(lang) {
+            // Update regular translatable elements
+            document.querySelectorAll('.translatable').forEach(el => {
+                if (el.dataset[lang]) {
+                    el.textContent = el.dataset[lang];
+                }
+            });
+            
+            // Update highlighted words inside text
+            document.querySelectorAll('.translatable-word').forEach(el => {
+                if (el.dataset[lang]) {
+                    el.textContent = el.dataset[lang];
+                }
+            });
+            
+            // Update image alt attributes
+            document.querySelectorAll('.translatable-alt').forEach(img => {
+                if (img.dataset[lang]) {
+                    img.alt = img.dataset[lang];
+                }
+            });
+            
+            // Update title attributes
+            document.querySelectorAll('.translatable-title').forEach(el => {
+                if (el.dataset[lang]) {
+                    el.title = el.dataset[lang];
+                }
+            });
+        }
+        
+        // Show language change notification
+        function showLanguageNotification(lang) {
+            let message = '';
+            switch(lang) {
+                case 'ar':
+                    message = 'تم تغيير اللغة إلى العربية';
+                    break;
+                case 'en':
+                    message = 'Language changed to English';
+                    break;
+                case 'fr':
+                    message = 'Langue changée en Français';
+                    break;
+            }
+            
+            showNotification(message);
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            // Remove existing notification
+            const existingNotification = document.querySelector('.lang-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.classList.add('lang-notification');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--accent);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 5px 20px rgba(108, 99, 255, 0.4);
+                animation: fadeInUp 0.3s, fadeOut 0.3s 2.7s;
+            `;
+            
+            // Add keyframes for animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        // Header scroll effect
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('header-scrolled');
+            } else {
+                header.classList.remove('header-scrolled');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Add animation to elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe feature cards
+        document.querySelectorAll('.feature-card, .tech-card, .screenshot').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Initialize effects
+        createParticles();
+        animateCursor();
+        
+        // Add hover effects to interactive elements
+        document.querySelectorAll('.cta-button, .contact-links a, .footer-links a, .feature-card, .tech-card, .screenshot').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                // Create a small burst effect
+                createBurstEffect(el);
+            });
+        });
+        
+        // Create burst effect
+        function createBurstEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Create burst particles
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const burst = document.createElement('div');
+                    burst.style.cssText = `
+                        position: fixed;
+                        width: 4px;
+                        height: 4px;
+                        border-radius: 50%;
+                        background: var(--accent);
+                        pointer-events: none;
+                        z-index: 10000;
+                        left: ${centerX}px;
+                        top: ${centerY}px;
+                        opacity: 0.8;
+                    `;
+                    
+                    document.body.appendChild(burst);
+                    
+                    // Random direction and distance
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 20 + 10;
+                    const targetX = centerX + Math.cos(angle) * distance;
+                    const targetY = centerY + Math.sin(angle) * distance;
+                    
+                    // Animate
+                    const animation = burst.animate([
+                        { transform: 'translate(0, 0) scale(1)', opacity: 0.8 },
+                        { transform: `translate(${targetX - centerX}px, ${targetY - centerY}px) scale(0)`, opacity: 0 }
+                    ], {
+                        duration: 500,
+                        easing: 'ease-out'
+                    });
+                    
+                    // Remove after animation
+                    animation.onfinish = () => burst.remove();
+                }, i * 30);
+            }
+        }
+        
+        // Add page load animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s';
+            
+            // Load saved language preference
+            const savedLang = localStorage.getItem('ghosttalk-language');
+            if (savedLang && savedLang !== 'ar') {
+                changeLanguage(savedLang);
+            }
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
